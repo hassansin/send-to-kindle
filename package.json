@@ -1,0 +1,39 @@
+{
+  "name": "send-to-kindle",
+  "version": "1.0.0",
+  "description": "Send web any page to your Kindle E-Reader using Webtask.io",
+  "main": "app.js",
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.35",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "nodemailer": "^2.5.0",
+    "request": "^2.83.0",
+    "webtask-tools": "^3.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.34",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.35",
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.35",
+    "@babel/preset-env": "^7.0.0-beta.34",
+    "babel-loader": "^8.0.0-beta.0",
+    "banner-webpack-plugin": "^0.2.3",
+    "webpack": "^3.10.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "webpack",
+    "deploy": "npm run bundle && wt create webtask.js --name send-to-kindle --output json --secret PDFLAYER_APIKEY=$PDFLAYER_APIKEY --secret SMTP_CONFIG=$SMTP_CONFIG --secret KINDLE_ADDRESS=$KINDLE_ADDRESS",
+    "bookmarklet": "node ./src/bookmarklet.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hassansin/send-to-kindle.git"
+  },
+  "author": "hassansin <rezatxe@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hassansin/send-to-kindle/issues"
+  },
+  "homepage": "https://github.com/hassansin/send-to-kindle#readme"
+}
