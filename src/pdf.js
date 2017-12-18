@@ -31,5 +31,6 @@ export default async function ({apiKey, url, html, ...options}) {
     }
     opts.method = 'POST'
   }
-  return request(opts)
+  const {body} = await request(opts)
+  return body
 }

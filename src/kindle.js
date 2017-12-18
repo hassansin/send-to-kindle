@@ -12,7 +12,6 @@ export default async function ({smtp, address, convert, attachments}) {
       subject: convert ? 'convert' : 'document',
       attachments
     }
-    console.log('sending to kindle')
     transporter.sendMail(opts, (err, info) => {
       if (err) {
         return reject(err)

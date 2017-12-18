@@ -98,7 +98,7 @@ exports.default = void 0;
 
 var _regenerator = _interopRequireDefault(__webpack_require__(1));
 
-var _assign = _interopRequireDefault(__webpack_require__(12));
+var _assign = _interopRequireDefault(__webpack_require__(11));
 
 var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(4));
 
@@ -106,7 +106,7 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(2));
 
 var _http = _interopRequireDefault(__webpack_require__(5));
 
-var _querystring = __webpack_require__(14);
+var _querystring = __webpack_require__(13);
 
 var API_ENDPOINT = 'http://api.pdflayer.com/api/convert';
 var defaultOptions = {
@@ -128,7 +128,8 @@ function () {
   var _ref2 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee(_ref) {
-    var apiKey, url, html, options, qs, opts;
+    var apiKey, url, html, options, qs, opts, _ref3, body;
+
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -153,9 +154,15 @@ function () {
               opts.method = 'POST';
             }
 
-            return _context.abrupt("return", (0, _http.default)(opts));
+            _context.next = 8;
+            return (0, _http.default)(opts);
 
-          case 7:
+          case 8:
+            _ref3 = _context.sent;
+            body = _ref3.body;
+            return _context.abrupt("return", body);
+
+          case 11:
           case "end":
             return _context.stop();
         }
@@ -192,7 +199,7 @@ exports.default = _default;
 
 var _promise = _interopRequireDefault(__webpack_require__(6));
 
-var _request = _interopRequireDefault(__webpack_require__(13));
+var _request = _interopRequireDefault(__webpack_require__(12));
 
 function _default(config) {
   return new _promise.default(function (resolve, reject) {
@@ -222,8 +229,6 @@ module.exports = require("@babel/runtime/core-js/promise");
 "use strict";
 
 
-var _interopRequireWildcard = __webpack_require__(8);
-
 var _interopRequireDefault = __webpack_require__(0);
 
 Object.defineProperty(exports, "__esModule", {
@@ -235,19 +240,21 @@ var _regenerator = _interopRequireDefault(__webpack_require__(1));
 
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(2));
 
-var _express = _interopRequireDefault(__webpack_require__(9));
+var _express = _interopRequireDefault(__webpack_require__(8));
 
-var _webtaskTools = _interopRequireDefault(__webpack_require__(10));
+var _webtaskTools = _interopRequireDefault(__webpack_require__(9));
 
-var _bodyParser = _interopRequireDefault(__webpack_require__(11));
+var _bodyParser = _interopRequireDefault(__webpack_require__(10));
 
 var _pdf = _interopRequireDefault(__webpack_require__(3));
 
-var _kindle = _interopRequireDefault(__webpack_require__(15));
+var _kindle = _interopRequireDefault(__webpack_require__(14));
 
-var _attachment = _interopRequireWildcard(__webpack_require__(17));
+var _attachment = _interopRequireDefault(__webpack_require__(16));
 
-var _middleware = __webpack_require__(19);
+var _middleware = __webpack_require__(18);
+
+var _filename = _interopRequireDefault(__webpack_require__(19));
 
 var app = (0, _express.default)();
 app.use(_middleware.validate);
@@ -257,8 +264,7 @@ function () {
   var _ref = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee(req, res, next) {
-    var ctx, url, test, title, convert, _ref2, filename, content, info;
-
+    var ctx, url, test, title, convert, content, filename, info;
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -285,11 +291,9 @@ function () {
             });
 
           case 9:
-            _ref2 = _context.sent;
-            filename = _ref2.filename;
-            content = _ref2.content;
-            filename = title ? title.replace('.pdf') + '.pdf' : filename;
-            _context.next = 15;
+            content = _context.sent;
+            filename = (0, _filename.default)(title, url);
+            _context.next = 13;
             return (0, _kindle.default)({
               smtp: ctx.secrets.SMTP_CONFIG,
               address: ctx.secrets.KINDLE_ADDRESS,
@@ -300,11 +304,11 @@ function () {
               convert
             });
 
-          case 15:
+          case 13:
             info = _context.sent;
             res.json(info);
 
-          case 17:
+          case 15:
           case "end":
             return _context.stop();
         }
@@ -319,15 +323,15 @@ function () {
 app.post('/', _bodyParser.default.raw({
   type: function type() {
     return true;
-  }
+  },
+  limit: '10MB'
 }), (0, _middleware.asyncware)(
 /*#__PURE__*/
 function () {
-  var _ref3 = (0, _asyncToGenerator2.default)(
+  var _ref2 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee2(req, res, next) {
-    var ctx, test, title, convert, filename, _ref4, body, info;
-
+    var ctx, test, title, convert, filename, content, info;
     return _regenerator.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -342,10 +346,10 @@ function () {
               break;
             }
 
-            throw new Error('missing html body');
+            throw new Error('missing body');
 
           case 6:
-            filename = title ? title.replace('.pdf') + '.pdf' : (0, _attachment.parseTitle)(req.body);
+            filename = (0, _filename.default)(title);
             _context2.next = 9;
             return (0, _pdf.default)({
               apiKey: ctx.secrets.PDFLAYER_APIKEY,
@@ -354,24 +358,23 @@ function () {
             });
 
           case 9:
-            _ref4 = _context2.sent;
-            body = _ref4.body;
-            _context2.next = 13;
+            content = _context2.sent;
+            _context2.next = 12;
             return (0, _kindle.default)({
               smtp: ctx.secrets.SMTP_CONFIG,
               address: ctx.secrets.KINDLE_ADDRESS,
               attachments: [{
                 filename,
-                content: body
+                content
               }],
               convert
             });
 
-          case 13:
+          case 12:
             info = _context2.sent;
             res.json(info);
 
-          case 15:
+          case 14:
           case "end":
             return _context2.stop();
         }
@@ -380,9 +383,12 @@ function () {
   }));
 
   return function (_x4, _x5, _x6) {
-    return _ref3.apply(this, arguments);
+    return _ref2.apply(this, arguments);
   };
 }()));
+app.use(function (err, req, res, next) {
+  res.status(500).send(err.message || err);
+});
 
 var _default = _webtaskTools.default.fromExpress(app);
 
@@ -392,46 +398,40 @@ exports.default = _default;
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = require("@babel/runtime/helpers/interopRequireWildcard");
+module.exports = require("express");
 
 /***/ }),
 /* 9 */
 /***/ (function(module, exports) {
 
-module.exports = require("express");
+module.exports = require("webtask-tools");
 
 /***/ }),
 /* 10 */
 /***/ (function(module, exports) {
 
-module.exports = require("webtask-tools");
+module.exports = require("body-parser");
 
 /***/ }),
 /* 11 */
 /***/ (function(module, exports) {
 
-module.exports = require("body-parser");
+module.exports = require("@babel/runtime/core-js/object/assign");
 
 /***/ }),
 /* 12 */
 /***/ (function(module, exports) {
 
-module.exports = require("@babel/runtime/core-js/object/assign");
+module.exports = require("request");
 
 /***/ }),
 /* 13 */
 /***/ (function(module, exports) {
 
-module.exports = require("request");
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
 module.exports = require("querystring");
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -450,7 +450,7 @@ var _promise = _interopRequireDefault(__webpack_require__(6));
 
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(2));
 
-var _nodemailer = _interopRequireDefault(__webpack_require__(16));
+var _nodemailer = _interopRequireDefault(__webpack_require__(15));
 
 /**
 * sends attachments to kindle address
@@ -476,7 +476,6 @@ function () {
                 subject: convert ? 'convert' : 'document',
                 attachments
               };
-              console.log('sending to kindle');
               transporter.sendMail(opts, function (err, info) {
                 if (err) {
                   return reject(err);
@@ -505,13 +504,13 @@ function () {
 exports.default = _default;
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = require("nodemailer");
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -522,12 +521,11 @@ var _interopRequireDefault = __webpack_require__(0);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.parseTitle = parseTitle;
 exports.fetchContent = exports.default = void 0;
 
 var _regenerator = _interopRequireDefault(__webpack_require__(1));
 
-var _extends2 = _interopRequireDefault(__webpack_require__(18));
+var _extends2 = _interopRequireDefault(__webpack_require__(17));
 
 var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(4));
 
@@ -537,13 +535,14 @@ var _http = _interopRequireDefault(__webpack_require__(5));
 
 var _pdf = _interopRequireDefault(__webpack_require__(3));
 
+// only convert html files to pdf, leave other file type contents
 var _default =
 /*#__PURE__*/
 function () {
   var _ref2 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee(_ref) {
-    var apiKey, url, options, _ref3, res, body, filename, _ref4, content;
+    var apiKey, url, options, _ref3, res, body;
 
     return _regenerator.default.wrap(function _callee$(_context) {
       while (1) {
@@ -557,27 +556,25 @@ function () {
             _ref3 = _context.sent;
             res = _ref3.res;
             body = _ref3.body;
-            filename = url.replace(/\/\?.*/, '').split('/').pop();
 
-            if (res.headers['content-type'].indexOf('text/html') > -1) {
-              filename = parseTitle(body);
+            if (!(res.headers['content-type'].indexOf('text/html') > -1)) {
+              _context.next = 10;
+              break;
             }
 
-            _context.next = 10;
+            _context.next = 9;
             return (0, _pdf.default)((0, _extends2.default)({
               html: body,
               apiKey
             }, options));
 
-          case 10:
-            _ref4 = _context.sent;
-            content = _ref4.body;
-            return _context.abrupt("return", {
-              filename,
-              content
-            });
+          case 9:
+            body = _context.sent;
 
-          case 13:
+          case 10:
+            return _context.abrupt("return", body);
+
+          case 11:
           case "end":
             return _context.stop();
         }
@@ -595,14 +592,13 @@ exports.default = _default;
 var fetchContent =
 /*#__PURE__*/
 function () {
-  var _ref5 = (0, _asyncToGenerator2.default)(
+  var _ref4 = (0, _asyncToGenerator2.default)(
   /*#__PURE__*/
   _regenerator.default.mark(function _callee2(url) {
     return _regenerator.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            console.log('fetching url', url);
             return _context2.abrupt("return", (0, _http.default)({
               url,
               headers: {
@@ -611,7 +607,7 @@ function () {
               encoding: null
             }));
 
-          case 2:
+          case 1:
           case "end":
             return _context2.stop();
         }
@@ -620,26 +616,20 @@ function () {
   }));
 
   return function fetchContent(_x2) {
-    return _ref5.apply(this, arguments);
+    return _ref4.apply(this, arguments);
   };
 }();
 
 exports.fetchContent = fetchContent;
 
-function parseTitle(body) {
-  var matches = body.toString().match(/title>([\s\S]*?)<\/title/i);
-  var title = matches ? `${matches[1]}.pdf` : 'document.pdf';
-  return title.replace(/\s+/g, '-').replace(/[-]+/g, '-');
-}
-
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = require("@babel/runtime/helpers/extends");
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -672,6 +662,58 @@ function asyncware(fn) {
     return fn(req, res, next).catch(next);
   };
 }
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+
+var _path = __webpack_require__(20);
+
+var allowedExt = ['.pdf', '.html', '.txt', '.doc', '.docx', '.png', '.jpeg', '.jpg', '.gif', '.bmp'];
+
+function _default() {
+  var title = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+  var url = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  var ext;
+  url = url.replace(/\/?\?.*/, '');
+
+  if (title && allowedExt.indexOf((0, _path.extname)(title)) > -1) {
+    ext = (0, _path.extname)(title);
+  }
+
+  if (title && allowedExt.indexOf(ext) > -1) {
+    return title;
+  }
+
+  if (!ext && allowedExt.indexOf((0, _path.extname)(url)) > -1) {
+    ext = (0, _path.extname)(url);
+  }
+
+  ext = ext || '.pdf';
+
+  if (title) {
+    return title + ext;
+  }
+
+  var _parse = (0, _path.parse)(url),
+      name = _parse.name;
+
+  return name + ext;
+}
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
 
 /***/ })
 /******/ ]);module.exports = module.exports.default

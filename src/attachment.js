@@ -1,18 +1,16 @@
 import request from './http'
 import pdf from './pdf'
 
+// only convert html files to pdf, leave other file type contents
 export default async function ({apiKey, url, ...options}) {
   let {res, body} = await fetchContent(url)
-  let filename = url.replace(/\/\?.*/, '').split('/').pop()
   if (res.headers['content-type'].indexOf('text/html') > -1) {
-    filename = parseTitle(body)
+    body = await pdf({html: body, apiKey, ...options})
   }
-  const {body: content} = await pdf({html: body, apiKey, ...options})
-  return {filename, content}
+  return body
 }
 
 export async function fetchContent (url) {
-  console.log('fetching url', url)
   return request({
     url,
     headers: {
@@ -20,10 +18,4 @@ export async function fetchContent (url) {
     },
     encoding: null
   })
-}
-
-export function parseTitle (body) {
-  const matches = body.toString().match(/title>([\s\S]*?)<\/title/i)
-  const title = matches ? `${matches[1]}.pdf` : 'document.pdf'
-  return title.replace(/\s+/g, '-').replace(/[-]+/g, '-')
 }
