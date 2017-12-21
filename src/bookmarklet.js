@@ -20,11 +20,19 @@ const script = function () {
       return r.text()
     })
     .then(data => (data && data.attachments) ? alert(`"${data.attachments[0]}" is sent to your kindle`) : alert(data))
-    .catch(e => console.log(e) && alert(e.message))
+    .catch(e => {
+      if (e && e.message === 'Failed to fetch') {
+        location.href = w + '&url=' + u
+        return
+      }
+      console.log(e), alert(e.message)
+    })
   }
 }
 
 const url = process.argv[2]
 assert.ok(url, 'missing webtask url')
 fs.writeSync(1, '=========== Bookmark the following script ========\n\n')
-fs.writeSync(1, 'javascript:(' + encodeURIComponent(script.toString().replace('__WTURL__', url)) + ')()\n\n')
+const bookmarklet = 'javascript:(' + encodeURIComponent(script.toString().replace('__WTURL__', url)) + ')()\n\n'
+fs.writeSync(1, bookmarklet)
+// console.log(bookmarklet.length)
